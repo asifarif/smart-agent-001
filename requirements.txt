@@ -1,0 +1,13 @@
+playwright 
+beautifulsoup4 
+requests 
+supabase 
+pdfminer.six 
+pytesseract 
+opencv-python
+python-dotenv
+
+# Developer Dependencies 
+pytest 
+black 
+isort 
