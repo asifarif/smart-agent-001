@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 import time
 import re
+from tools.classify_programs import classify_programs
 
 
 class ZiauddinAgent:
@@ -59,7 +60,9 @@ class ZiauddinAgent:
         self.scraper.close()
 
         cleaned_programs = self.clean_programs(programs)
-        print("\n📘 Cleaned Programs Extracted:\n")
-        pprint(cleaned_programs)
+        structured_programs = classify_programs(cleaned_programs)
 
-        return cleaned_programs
+        print("\n📘 Structured & Classified Programs:\n")
+        pprint(structured_programs)
+
+        return structured_programs

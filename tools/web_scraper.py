@@ -2,7 +2,7 @@
 from playwright.sync_api import sync_playwright
 
 class WebScraper:
-    def __init__(self, headless=False):
+    def __init__(self, headless=True):
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch(
             headless=headless,
