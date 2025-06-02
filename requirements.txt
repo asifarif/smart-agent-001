@@ -11,3 +11,8 @@ python-dotenv
 pytest 
 black 
 isort 
+
+# pdf
+pdfplumber 
+pytesseract 
+Pillow
