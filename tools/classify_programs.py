@@ -18,11 +18,11 @@ def is_probably_faculty(text):
         return True
 
     # Contains multiple degrees — likely a faculty bio
-    if len(re.findall(r'\b(PhD|MPhil|MS|ME|MSc|MA|MBA|BS|BSc|B\.Ed|B\.Com|MBBS|BDS)\b', text, flags=re.IGNORECASE)) >= 2:
-        return True
+    #if len(re.findall(r'\b(PhD|MPhil|MS|ME|MSc|MA|MBA|BS|BSc|B\.Ed|B\.Com|MBBS|BDS)\b', text, flags=re.IGNORECASE)) >= 2:
+    #    return True
 
     # Promotional/news phrases (not a program)
-    if re.search(r"\b(hosts?|organized|conducted|celebrates?|sports day|event|seminar|session)\b", text, re.IGNORECASE):
+    if re.search(r"\b(hosts?|organized|conducted|celebrates?|sports day|event|seminar)\b", text, re.IGNORECASE):
         return True
 
     # Too short or suspicious
@@ -36,10 +36,10 @@ def classify_programs(programs):
     seen = set()
     
     degree_patterns = {
-        "undergraduate": re.compile(r"\b(Bachelor of [A-Za-z\s]+|BS\s?\([A-Za-z\s]+\)|bs|bsc|ba|bba|pharm[\- ]?d|mbbs|bds|b\.?ed|b\.?com|BSc)\b", re.IGNORECASE),
+        "undergraduate": re.compile(r"\b(Bachelor of [A-Za-z\s]+|BS\s?\([A-Za-z\s]+\)|Bachelors of [A-Za-z\s]|bachelors|bachelor|bs|bsc|ba|bba|pharm[\- ]?d|mbbs|bds|b\.?ed|b\.?com|BSc)\b", re.IGNORECASE),
         # "masters": re.compile(r"\b(Master of [A-Za-z\s]+|MS\s?\([A-Za-z\s]+\)|MSc\s?\([A-Za-z\s]+\))\b", re.IGNORECASE),
         # "phd": re.compile(r"\b(Ph\.?D\.?|Doctor of Philosophy)\b", re.IGNORECASE),
-        "medical": re.compile(r"\b(MBBS|BDS|Pharm[\- ]?D)\b", re.IGNORECASE)
+        "medical": re.compile(r"\b(MBBS|BDS|BSN|Pharm[\- ]?D)\b", re.IGNORECASE)
     }
 
     for prog in programs:
@@ -51,7 +51,7 @@ def classify_programs(programs):
         if is_probably_faculty(text):
             continue
 
-        if len(text) < 6 or len(text) > 120:
+        if len(text) < 6 or len(text) > 500:
             continue
 
         if text.lower() in seen:

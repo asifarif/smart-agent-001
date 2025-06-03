@@ -1,0 +1,62 @@
+[
+  {
+    "program_name": "Bachelor of Science in Nursing",
+    "category": "undergraduate",
+    "admission_open": true,
+    "application_deadline": null,
+    "link": "https://zu.edu.pk/undergraduate-programmes/",
+    "source_text": "FACULTY OF NURSING & MIDWIFERY",
+    "source_url": "https://zu.edu.pk/undergraduate-programmes/",
+    "university": "Ziauddin University"
+  },
+  {
+    "program_name": "Bachelor of Science in Computer Science",
+    "category": "undergraduate",
+    "admission_open": true,
+    "application_deadline": null,
+    "link": "https://zu.edu.pk/undergraduate-programmes/",
+    "source_text": "FACULTY OF ENGINEERING, SCIENCE, TECHNOLOGY & MANAGEMENT",
+    "source_url": "https://zu.edu.pk/undergraduate-programmes/",
+    "university": "Ziauddin University"
+  },
+  {
+    "program_name": "Bachelor of Science in Pharmacy",
+    "category": "undergraduate",
+    "admission_open": true,
+    "application_deadline": null,
+    "link": "https://zu.edu.pk/undergraduate-programmes/",
+    "source_text": "FACULTY OF PHARMACY & PHARMACEUTICAL SCIENCES",
+    "source_url": "https://zu.edu.pk/undergraduate-programmes/",
+    "university": "Ziauddin University"
+  },
+  {
+    "program_name": "Bachelor of Science in Veterinary and Animal Sciences",
+    "category": "undergraduate",
+    "admission_open": true,
+    "application_deadline": null,
+    "link": "https://zu.edu.pk/undergraduate-programmes/",
+    "source_text": "FACULTY OF VETERINARY & ANIMAL SCIENCES",
+    "source_url": "https://zu.edu.pk/undergraduate-programmes/",
+    "university": "Ziauddin University"
+  },
+  {
+    "program_name": "Master of Surgery",
+    "category": "masters",
+    "admission_open": true,
+    "application_deadline": "2025-06-11",
+    "link": "https://admission.zu.edu.pk/program-detail?id=64&sts=1&o=1",
+    "source_text": "Last Date 11-Jun-2025 VIST WEBSITE FEE SCHEDULE",
+    "source_url": "https://admission.zu.edu.pk/program-detail?id=64&sts=1&o=1",
+    "university": "Ziauddin University"
+  },
+  {
+    "program_name": "Bachelor of Science (Biotechnology)",
+    "category": "undergraduate",
+    "admission_open": true,
+    "application_deadline": "2025-06-20",
+    "link": "https://admission.zu.edu.pk/program-detail?id=158&sts=1&o=1",
+    "source_text": "Last Date 20-Jun-2025 VIST WEBSITE FEE SCHEDULE Offered at NORTH Last date to apply 20-Jun-2025 Admission Test BS BIOTECHNOLOGY ( NORTH ) :- 21-Jun-2025",
+    "source_url": "https://admission.zu.edu.pk/program-detail?id=158&sts=1&o=1",
+    "university": "Ziauddin University"
+  }
+]

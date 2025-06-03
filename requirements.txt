@@ -6,6 +6,9 @@ pdfminer.six
 pytesseract 
 opencv-python
 python-dotenv
+groq
+openai>=1.0.0
+tenacity
 
 # Developer Dependencies 
 pytest 
