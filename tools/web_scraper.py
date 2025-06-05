@@ -1,4 +1,4 @@
-# tools/web_scraper.py - Enhanced with stealth mode
+# tools/web_scraper.py - Enhanced noise removal and stealth
 import asyncio
 import random
 import json
@@ -14,17 +14,15 @@ class WebScraper:
         self.context = None
         self.user_agents = [
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15"
         ]
 
     async def setup(self):
-        """Initialize browser with stealth mode"""
+        """Initialize browser with improved stealth mode"""
         playwright = await async_playwright().start()
         
-        # Launch browser with stealth settings
         self.browser = await playwright.chromium.launch(
             headless=True,
             args=[
@@ -34,18 +32,14 @@ class WebScraper:
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
                 '--no-zygote',
-                '--single-process',
                 '--disable-gpu',
                 '--disable-web-security',
                 '--disable-features=VizDisplayCompositor',
                 '--disable-extensions',
                 '--disable-plugins',
-                '--disable-images',  # Faster loading
-                '--disable-javascript',  # Disable JS to avoid detection scripts
             ]
         )
         
-        # Create context with realistic settings
         self.context = await self.browser.new_context(
             viewport={'width': 1920, 'height': 1080},
             user_agent=random.choice(self.user_agents),
@@ -56,7 +50,11 @@ class WebScraper:
                 'DNT': '1',
                 'Connection': 'keep-alive',
                 'Cache-Control': 'max-age=0',
-            }
+            },
+            java_script_enabled=True,  # Enable JavaScript for Cloudflare and dynamic content
+            bypass_csp=True,
+            locale='en-US',
+            timezone_id='Asia/Karachi',
         )
 
     @retry(
@@ -65,61 +63,65 @@ class WebScraper:
         retry=retry_if_exception_type((Exception,))
     )
     async def get_page_data(self, url: str) -> dict:
-        """Scrape page with stealth mode and Cloudflare bypass"""
+        """Scrape page with improved stealth and advanced HTML cleaning"""
         if not self.context:
             await self.setup()
         
         page = await self.context.new_page()
         
         try:
-            # Apply stealth mode
             await stealth_async(page)
             
             print(f"⏳ Loading page: {url}")
+            start_time = time.time()
             
-            # Navigate with extended timeout
             await page.goto(
                 url, 
-                wait_until="domcontentloaded",
-                timeout=180000  # 3 minutes
+                wait_until="networkidle",  # Wait for all content to load
+                timeout=180000
             )
             
-            # Wait for initial load
-            await page.wait_for_timeout(3000)
+            await page.wait_for_timeout(5000)  # Extra wait for dynamic content
             
-            # Check for Cloudflare challenge
             content = await page.content()
             if self._is_cloudflare_challenge(content):
                 print(f"🔄 Cloudflare challenge detected, waiting...")
                 await self._handle_cloudflare_challenge(page)
                 content = await page.content()
             
-            # Check if we got blocked
             if self._is_blocked(content):
                 print(f"❌ Page blocked or showing error for {url}")
                 return None
             
+            # Clean the HTML with BeautifulSoup
+            soup = BeautifulSoup(content, "html.parser")
+            # Remove Elementor-specific and other noisy elements
+            for elem in soup(["script", "style", "noscript", "iframe", "link", "meta", "header", "footer", 
+                              "nav", "aside", "form", "button", "input", 
+                              "div.elementor-widget-container", "div.elementor-column-gap-default"]):
+                elem.decompose()
+            # Remove empty or irrelevant elements
+            for elem in soup.find_all():
+                text = elem.get_text(strip=True)
+                if not text or len(text) < 10 or "elementor" in elem.get("class", []):
+                    elem.decompose()
+            cleaned_html = str(soup)
+            
             # Extract text content
-            text_content = await page.evaluate('''() => {
-                // Remove scripts and styles
-                const scripts = document.querySelectorAll('script, style, noscript');
-                scripts.forEach(el => el.remove());
-                
-                // Get clean text
-                return document.body ? document.body.innerText : document.documentElement.innerText;
-            }''')
+            text_content = soup.get_text(separator=" | ", strip=True)
             
-            # Get page title
             title = await page.title()
+            load_time = time.time() - start_time
             
-            print(f"✅ Successfully scraped: {url} (text length: {len(text_content)})")
+            print(f"✅ Successfully scraped: {url} (text length: {len(text_content)}, load time: {load_time:.2f}s)")
             
             return {
                 "url": url,
                 "title": title,
-                "text": text_content.strip(),
-                "html": content,
-                "timestamp": time.time()
+                "text": text_content,
+                "html": cleaned_html,
+                "timestamp": time.time(),
+                "load_time": load_time
             }
             
         except Exception as e:
@@ -129,7 +131,6 @@ class WebScraper:
             await page.close()
 
     def _is_cloudflare_challenge(self, html: str) -> bool:
-        """Check if page shows Cloudflare challenge"""
         indicators = [
             "Verify you are human",
             "cf-challenge",
@@ -143,7 +144,6 @@ class WebScraper:
         return any(indicator.lower() in html_lower for indicator in indicators)
 
     def _is_blocked(self, html: str) -> bool:
-        """Check if page is blocked or showing error"""
         error_indicators = [
             "403 Forbidden",
             "Access Denied",
@@ -156,13 +156,10 @@ class WebScraper:
         return any(indicator.lower() in html_lower for indicator in error_indicators)
 
     async def _handle_cloudflare_challenge(self, page: Page):
-        """Handle Cloudflare challenge page"""
         try:
-            # Wait for challenge to complete
             print("⏳ Waiting for Cloudflare challenge to complete...")
             
-            # Wait up to 30 seconds for challenge to resolve
-            for i in range(30):
+            for i in range(60):  # Extend timeout to 60 seconds
                 await page.wait_for_timeout(1000)
                 content = await page.content()
                 
@@ -170,12 +167,11 @@ class WebScraper:
                     print("✅ Cloudflare challenge completed")
                     return
                 
-                # Try clicking verification if present
                 try:
-                    verify_button = await page.query_selector('input[type="button"][value*="Verify"]')
+                    verify_button = await page.query_selector('input[type="checkbox"], input[type="button"][value*="Verify"]')
                     if verify_button:
                         await verify_button.click()
-                        await page.wait_for_timeout(2000)
+                        await page.wait_for_timeout(3000)
                 except:
                     pass
             
@@ -185,7 +181,6 @@ class WebScraper:
             print(f"⚠️ Error handling Cloudflare challenge: {e}")
 
     async def close(self):
-        """Close browser"""
         if self.context:
             await self.context.close()
         if self.browser:
